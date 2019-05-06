@@ -51,3 +51,8 @@ sceneform.asset('sampledata/ball/scene.gltf',
         'default',
         'sampledata/ball/scene.sfa',
         'src/main/res/raw/ball')
+
+sceneform.asset('sampledata/andy/andy.obj',
+        'default',
+        'sampledata/andy/andy.sfa',
+        'src/main/res/raw/andy')
