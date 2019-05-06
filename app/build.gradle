@@ -45,3 +45,9 @@ dependencies {
     implementation 'com.google.ar.sceneform:core:1.8.0'
 }
 
+apply plugin: 'com.google.ar.sceneform.plugin'
+
+sceneform.asset('sampledata/ball/scene.gltf',
+        'default',
+        'sampledata/ball/scene.sfa',
+        'src/main/res/raw/ball')
