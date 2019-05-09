@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.janestrip.demo.arcorecomplexdemo.helper;
+package com.janestrip.demo.arcorecomplexdemo.recorder;
 
 import android.content.res.Configuration;
 import android.media.CamcorderProfile;

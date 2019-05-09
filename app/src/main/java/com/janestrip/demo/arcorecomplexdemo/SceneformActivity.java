@@ -16,14 +16,17 @@ import com.google.ar.core.Anchor;
 import com.google.ar.core.HitResult;
 import com.google.ar.core.Plane;
 import com.google.ar.sceneform.AnchorNode;
+import com.google.ar.sceneform.Node;
 import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.ModelRenderable;
-import com.google.ar.sceneform.ux.ArFragment;
-import com.google.ar.sceneform.ux.TransformableNode;
 import com.janestrip.demo.arcorecomplexdemo.helper.ARCoreHelper;
-import com.janestrip.demo.arcorecomplexdemo.helper.ARVideoRecorder;
+import com.janestrip.demo.arcorecomplexdemo.recorder.ARVideoRecorder;
 import com.janestrip.demo.arcorecomplexdemo.helper.ModelLoader;
+import com.janestrip.demo.arcorecomplexdemo.solarsystem.SolarHelper;
+import com.janestrip.demo.arcorecomplexdemo.solarsystem.SolarSettings;
 import com.janestrip.demo.arcorecomplexdemo.helper.WritingArFragment;
+
+import java.util.function.Consumer;
 
 
 public class SceneformActivity extends AppCompatActivity
@@ -32,13 +35,18 @@ public class SceneformActivity extends AppCompatActivity
     private static final String TAG = SceneformActivity.class.getSimpleName();
 
     private WritingArFragment arFragment;
-    private ModelRenderable myRenderable;
+    private ModelRenderable andyRenderable;
+    private ModelRenderable ballRenderable;
 
     private ModelLoader modelLoader;
+//    private ModelLoader modelLoader_ball;
 
     private FloatingActionButton recordButton;
     // VideoRecorder encapsulates all the video recording functionality.
     private ARVideoRecorder videoRecorder;
+
+//    private final SolarSettings solarSettings = new SolarSettings();
+
 
     @Override
     @SuppressWarnings({"AndroidApiChecker", "FutureReturnValueIgnored"})
@@ -54,9 +62,31 @@ public class SceneformActivity extends AppCompatActivity
         setContentView(R.layout.activity_ar);
         arFragment = (WritingArFragment) getSupportFragmentManager().findFragmentById(R.id.ux_fragment);
 
-        //load model
+//        arFragment.getArSceneView();
+        //load model: andy
         modelLoader = new ModelLoader(this);
-        modelLoader.loadModel(this, R.raw.ball);
+        modelLoader.loadModel(this, R.raw.andy);
+
+        //load model: ball
+        ModelRenderable.builder()
+                .setSource(this, R.raw.ball)
+                .build()
+                .thenAccept(new Consumer<ModelRenderable>() {
+                    @Override
+                    public void accept(ModelRenderable renderable) {
+                        ballRenderable = renderable;
+                    }
+                })
+                .exceptionally(
+                        throwable -> {
+                            Toast toast =
+                                    Toast.makeText(this, "Unable to load ball renderable", Toast.LENGTH_LONG);
+                            toast.setGravity(Gravity.CENTER, 0, 0);
+                            toast.show();
+                            return null;
+                        });
+
+
 
 //      arFragment.getPlaneDiscoveryController().hide();
 //      arFragment.getPlaneDiscoveryController().setInstructionView(null);
@@ -64,7 +94,11 @@ public class SceneformActivity extends AppCompatActivity
 
         arFragment.setOnTapArPlaneListener(
                 (HitResult hitResult, Plane plane, MotionEvent motionEvent) -> {
-                    if (myRenderable == null) {
+                    if (andyRenderable == null) {
+                        return;
+                    }
+
+                    if (ballRenderable == null) {
                         return;
                     }
 
@@ -74,12 +108,16 @@ public class SceneformActivity extends AppCompatActivity
                     anchorNode.setParent(arFragment.getArSceneView().getScene());
 
                     // Create the transformable andy and add it to the anchor.
-                    TransformableNode ball = new TransformableNode(arFragment.getTransformationSystem());
-                    ball.setParent(anchorNode);
-                    ball.setRenderable(myRenderable);
-//                    ball.setLocalScale(new Vector3(0.1f,0.1f,0.1f));
-//                    ball.setWorldScale(new Vector3(0.1f,0.1f,0.1f));
-                    ball.select();
+                    //TransformableNode andy = new TransformableNode(arFragment.getTransformationSystem());
+                    Node andy = new Node();
+                    andy.setParent(anchorNode);
+                    andy.setRenderable(ballRenderable);
+                    andy.setLocalScale(new Vector3(0.3f, 0.3f, 0.3f));
+                    //andy.select();
+
+                    SolarSettings solarSettings = new SolarSettings();
+                    SolarHelper.createPlanet(this,solarSettings,"ball", andy, 0.5f, 35f, andyRenderable, 2.0f, 20.64f);
+                    //createPlanet("Ball", andy, 0.4f, 47f, andyRenderable, 0.019f, 0.03f);
                 });
 
 
@@ -96,10 +134,12 @@ public class SceneformActivity extends AppCompatActivity
     }
 
 
+
+
     // implements ModelLoader.ModelLoaderCallbacks
     @Override
     public void setRenderable(ModelRenderable modelRenderable) {
-        myRenderable = modelRenderable;
+        andyRenderable = modelRenderable;
     }
 
     @Override
