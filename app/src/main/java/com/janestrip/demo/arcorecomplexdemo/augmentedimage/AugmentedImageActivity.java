@@ -2,6 +2,7 @@ package com.janestrip.demo.arcorecomplexdemo.augmentedimage;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -20,8 +21,12 @@ import java.util.Map;
 
 public class AugmentedImageActivity extends AppCompatActivity {
 
+    private static final String TAG = "AugmentedImageActivity";
+
     private ArFragment arFragment;
     private ImageView fitToScanView;
+
+    private HashMap<String,Integer> mdoelMaps = null;
 
     // Augmented image and its associated center pose anchor, keyed by the augmented image in
     // the database.
@@ -36,6 +41,11 @@ public class AugmentedImageActivity extends AppCompatActivity {
         fitToScanView = findViewById(R.id.image_view_fit_to_scan);
 
         arFragment.getArSceneView().getScene().addOnUpdateListener(this::onUpdateFrame);
+
+        mdoelMaps = new HashMap<String, Integer>();
+        mdoelMaps.put("default.jpg",R.raw.andy);    //default: andy
+        mdoelMaps.put("f.jpg",R.raw.ball);    //flower : ball
+
     }
 
     @Override
@@ -78,9 +88,13 @@ public class AugmentedImageActivity extends AppCompatActivity {
 
                     // Create a new anchor for newly found images.
                     if (!augmentedImageMap.containsKey(augmentedImage)) {
-                        AugmentedImageNode node = new AugmentedImageNode(this);
-                        node.setImage(augmentedImage);
 
+                        String imagename = augmentedImage.getName();
+                        Log.d(TAG, "onUpdateFrame: image name: "+imagename);
+
+                        Integer modelRID = mdoelMaps.get(imagename);
+                        AugmentedImageNode node = new AugmentedImageNode(this,modelRID);
+                        node.setImage(augmentedImage);
 
                         augmentedImageMap.put(augmentedImage, node);
                         arFragment.getArSceneView().getScene().addChild(node);

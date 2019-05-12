@@ -64,23 +64,6 @@ public class AugmentedImageFragment extends ArFragment {
     super.onAttach(context);
 
     ARCoreHelper.checkIsSupportedDeviceOrFinish(getActivity(),context);
-//    // Check for Sceneform being supported on this device.  This check will be integrated into
-//    // Sceneform eventually.
-//    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-//      Log.e(TAG, "Sceneform requires Android N or later");
-//      SnackbarHelper.getInstance()
-//          .showError(getActivity(), "Sceneform requires Android N or later");
-//    }
-//
-//    String openGlVersionString =
-//        ((ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE))
-//            .getDeviceConfigurationInfo()
-//            .getGlEsVersion();
-//    if (Double.parseDouble(openGlVersionString) < MIN_OPENGL_VERSION) {
-//      Log.e(TAG, "Sceneform requires OpenGL ES 3.0 or later");
-//      SnackbarHelper.getInstance()
-//          .showError(getActivity(), "Sceneform requires OpenGL ES 3.0 or later");
-//    }
   }
 
   @Override
@@ -123,25 +106,20 @@ public class AugmentedImageFragment extends ArFragment {
     // * shorter setup time
     // * doesn't require images to be packaged in apk.
     if (USE_SINGLE_IMAGE) {
-      Bitmap augmentedImageBitmap = loadAugmentedImageBitmap(assetManager,DEFAULT_IMAGE_NAME);
-      if (augmentedImageBitmap == null) {
+
+      augmentedImageDatabase = initAugmentedImageDatabase(assetManager,session);
+      if(augmentedImageDatabase == null || augmentedImageDatabase.getNumImages() <= 0){
         return false;
       }
 
-      augmentedImageDatabase = new AugmentedImageDatabase(session);
-      augmentedImageDatabase.addImage(DEFAULT_IMAGE_NAME, augmentedImageBitmap);
+//      Bitmap augmentedImageBitmap = loadAugmentedImageBitmap(assetManager,DEFAULT_IMAGE_NAME);
+//      if (augmentedImageBitmap == null) {
+//        return false;
+//      }
+//
+//      augmentedImageDatabase = new AugmentedImageDatabase(session);
+//      augmentedImageDatabase.addImage(DEFAULT_IMAGE_NAME, augmentedImageBitmap);
 
-      //add the second image
-      Bitmap augmentedImageBitmap2 = loadAugmentedImageBitmap(assetManager,"f.jpg");
-      if (augmentedImageBitmap2 != null) {
-        augmentedImageDatabase.addImage("f.jpg", augmentedImageBitmap2);
-      }
-
-//      augmentedImageDatabase.addImage("f.jpg", augmentedImageBitmap);
-      // If the physical size of the image is known, you can instead use:
-      //     augmentedImageDatabase.addImage("image_name", augmentedImageBitmap, widthInMeters);
-      // This will improve the initial detection speed. ARCore will still actively estimate the
-      // physical size of the image as it is viewed from multiple viewpoints.
     } else {
       // This is an alternative way to initialize an AugmentedImageDatabase instance,
       // load a pre-existing augmented image database.
@@ -164,5 +142,31 @@ public class AugmentedImageFragment extends ArFragment {
       Log.e(TAG, "IO exception loading augmented image bitmap.", e);
     }
     return null;
+  }
+
+
+  private AugmentedImageDatabase initAugmentedImageDatabase(AssetManager assetManager, Session session){
+
+    AugmentedImageDatabase augmentedImageDatabase;
+    augmentedImageDatabase = new AugmentedImageDatabase(session);
+
+    // If the physical size of the image is known, you can instead use:
+    //     augmentedImageDatabase.addImage("image_name", augmentedImageBitmap, widthInMeters);
+    // This will improve the initial detection speed. ARCore will still actively estimate the
+    // physical size of the image as it is viewed from multiple viewpoints.
+    //0
+    Bitmap augmentedImageBitmap = loadAugmentedImageBitmap(assetManager,DEFAULT_IMAGE_NAME);
+    if (augmentedImageBitmap != null) {
+      augmentedImageDatabase.addImage(DEFAULT_IMAGE_NAME, augmentedImageBitmap);
+
+    }
+
+    //1:add the second image
+    Bitmap augmentedImageBitmap2 = loadAugmentedImageBitmap(assetManager,"f.jpg");
+    if (augmentedImageBitmap2 != null) {
+      augmentedImageDatabase.addImage("f.jpg", augmentedImageBitmap2);
+    }
+
+    return augmentedImageDatabase;
   }
 }
