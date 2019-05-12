@@ -7,6 +7,8 @@ import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.janestrip.demo.common.SnackbarHelper;
+
 public class ARCoreHelper {
 
     private static final String TAG = "ARCoreHelper";
@@ -44,5 +46,27 @@ public class ARCoreHelper {
             return false;
         }
         return true;
+    }
+
+
+    public static void checkIsSupportedDeviceOrFinish(final Activity activity, final Context context) {
+
+        // Check for Sceneform being supported on this device.  This check will be integrated into
+        // Sceneform eventually.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            Log.e(TAG, "Sceneform requires Android N or later");
+            SnackbarHelper.getInstance()
+                    .showError(activity, "Sceneform requires Android N or later");
+        }
+
+        String openGlVersionString =
+                ((ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE))
+                        .getDeviceConfigurationInfo()
+                        .getGlEsVersion();
+        if (Double.parseDouble(openGlVersionString) < MIN_OPENGL_VERSION) {
+            Log.e(TAG, "Sceneform requires OpenGL ES 3.0 or later");
+            SnackbarHelper.getInstance()
+                    .showError(activity, "Sceneform requires OpenGL ES 3.0 or later");
+        }
     }
 }
