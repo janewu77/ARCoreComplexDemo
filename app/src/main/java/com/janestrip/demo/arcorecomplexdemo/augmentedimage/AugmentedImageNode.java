@@ -20,6 +20,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.google.ar.core.AugmentedImage;
+import com.google.ar.core.Pose;
 import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.Node;
 import com.google.ar.sceneform.math.Quaternion;
@@ -74,6 +75,8 @@ public class AugmentedImageNode extends AnchorNode {
                 return null;
               });
     }
+
+    //Pose pose = new Pose();
 
     // Set the anchor based on the center of the image.
     setAnchor(image.createAnchor(image.getCenterPose()));
